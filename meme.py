@@ -44,16 +44,12 @@ def generate_meme(path=None, body=None, author=None):
             raise Exception('Author Required if Body is Used')
         quote = models.QuoteModel.QuoteModel(body, author)
 
-    meme = MemeEngine('./.tmp')
+    meme = MemeEngine('./static')
     path = meme.make_meme(img, quote.body, quote.author)
     return path
 
 
 if __name__ == "__main__":
-    # @TODO Use ArgumentParser to parse the following CLI arguments
-    # path - path to an image file
-    # body - quote body to add to the image
-    # author - quote author to add to the image
     parser = argparse.ArgumentParser(
                     prog='Meme Generator Command-Line Interface',
                     description='Create super cute meme',
@@ -61,6 +57,6 @@ if __name__ == "__main__":
 
     parser.add_argument('--body')           # positional argument
     parser.add_argument('--author')      # option that takes a value
-    parser.add_argument('--path')  
+    parser.add_argument('--path')
     args = parser.parse_args()
     print(generate_meme(args.path, args.body, args.author))

@@ -2,13 +2,14 @@ from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 import os
 
+
 class MemeEngine:
     """A meme engine."""
 
     def __init__(self, path) -> None:
         self.path = path
 
-    def make_meme(self, img_path: str, text: str, author: str, width: int=500) -> str:
+    def make_meme(self, img_path: str, text: str, author: str, width: int = 500) -> str:
         """Generate a meme and return meme path"""
         if os.path.exists(img_path):
             image = Image.open(img_path)
@@ -23,7 +24,7 @@ class MemeEngine:
             draw = ImageDraw.Draw(resized_image)
             fontSize = 35
             font = ImageFont.truetype('Arial.ttf', size=fontSize)
-        
+
             # Draw the text on the image
             textPos = (1, 1)
             authorPos = (1, textPos[1] + fontSize)

@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">        
+        <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                background: #F5FCFE;
+            }
+
+            .nav {
+                display: inline;
+                padding: 60px;
+            }
+        </style>
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+        <div class="nav">
+            <a class="btn btn-outline-primary" href="{{url_for('meme_form')}}">Back to Creator</a>    
+        </div>
+    </body>
+</html>
+

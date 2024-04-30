@@ -1,11 +1,13 @@
 import pathlib
 import random
 import os
+from PIL import UnidentifiedImageError
 import requests
 from flask import Flask, render_template, abort, request
 
 from MemeEngine import MemeEngine
 from QuoteEngine.Ingestors import Ingestor
+from meme import generate_meme
 
 app = Flask(__name__)
 
@@ -19,9 +21,6 @@ def setup():
                    './_data/DogQuotes/DogQuotesDOCX.docx',
                    './_data/DogQuotes/DogQuotesPDF.pdf',
                    './_data/DogQuotes/DogQuotesCSV.csv']
-
-    # TODO: Use the Ingestor class to parse all files in the
-    # quote_files variable
     quotes = []
     for f in quote_files:
         suffix = pathlib.Path(f).suffix
@@ -33,8 +32,6 @@ def setup():
 
     images_path = "./_data/photos/dog/"
 
-    # TODO: Use the pythons standard library os class to find all
-    # images within the images images_path directory
     imgs = []
     for root, dirs, files in os.walk(images_path):
         imgs.extend([os.path.join(root, name) for name in files])
@@ -51,7 +48,7 @@ def meme_rand():
 
     img = random.choice(imgs)
     quote = random.choice(quotes)
-    
+
     path = meme.make_meme(img, quote.body, quote.author)
     return render_template('meme.html', path=path)
 
@@ -65,25 +62,28 @@ def meme_form():
 @app.route('/create', methods=['POST'])
 def meme_post():
     """ Create a user defined meme """
+    try:
+        form_data = request.form
+        image_url =None if str.strip(form_data['image_url']) == "" else form_data['image_url']
+        body = None if str.strip(form_data['body']) == "" else form_data['body']
+        author = None if str.strip(form_data['author']) == "" else form_data['author']
 
-    # @TODO:
-    # 1. Use requests to save the image from the image_url
-    #    form param to a temp local file.
-    # 2. Use the meme object to generate a meme using this temp
-    #    file and the body and author form paramaters.
-    # 3. Remove the temporary saved image.
-    form_data = request.form
-    image_url = form_data['image_url']
-    body = form_data['body']
-    author = form_data['author']
-
-    response = requests.get(image_url, stream=True) 
-    image_path = f"./.tmp/downloaded_image.jpg"
-    with open(image_path, 'wb') as fout:
-        for chunk in response:
-            fout.write(chunk)
-    meme_path = meme.make_meme(image_path, body, author)
-    return render_template('meme.html', path=meme_path)
+        image_path = None
+        meme_path = None
+        if (image_url is not None):
+            response = requests.get(image_url, stream=True)
+            image_path = "./.tmp/downloaded_image.jpg"
+            with open(image_path, 'wb') as fout:
+                for chunk in response:
+                    fout.write(chunk)
+            meme_path = generate_meme(image_path, body, author)
+            os.remove(image_path)
+        else:
+            meme_path = generate_meme(image_path, body, author)
+        return render_template('meme.html', path=meme_path)
+    except UnidentifiedImageError as ex:
+        error = f"Url should be a image, {ex}"
+        return render_template('error.html', error=error)
 
 
 if __name__ == "__main__":

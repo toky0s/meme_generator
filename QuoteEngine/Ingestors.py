@@ -7,6 +7,7 @@ import pathlib
 import csv
 import subprocess
 
+
 class CsvIngestor(IngestorInterface):
 
     @override
@@ -20,7 +21,7 @@ class CsvIngestor(IngestorInterface):
                 reader = csv.reader(file)
                 header = next(reader)
                 return "body" in header and "author" in header
-        except:
+        except Exception:
             return False
 
     @override
@@ -36,6 +37,7 @@ class CsvIngestor(IngestorInterface):
                 quotes.append(quote_obj)
         return quotes
 
+
 class DocxIngestor(IngestorInterface):
 
     @override
@@ -46,7 +48,7 @@ class DocxIngestor(IngestorInterface):
             if str.upper(suffix) != '.DOCX':
                 return False
             return True
-        except:
+        except Exception:
             return False
 
     @override
@@ -56,13 +58,17 @@ class DocxIngestor(IngestorInterface):
         doc = Document(path)
         for paragraph in doc.paragraphs:
             line: str = paragraph.text
-            if (line == ""): break
+            if (line == ""):
+                break
             split_text = line.split('-')
             quote_models.append(QuoteModel(split_text[0], split_text[1]))
         return quote_models
-        
+
 
 class PdfIngestor(IngestorInterface):
+    """
+    A PDF Ingestor
+    """
 
     @override
     @classmethod
@@ -72,19 +78,17 @@ class PdfIngestor(IngestorInterface):
             if str.upper(suffix) != '.PDF':
                 return False
             return True
-        except:
+        except Exception:
             return False
 
     @override
     @classmethod
     def parse(cls, path: str) -> list[QuoteModel]:
         """
-        Params:
-            cls: PdfIngestor
-            path: Pdf path
-        
-        Return:
-            List of QuoteModel
+        @param cls: PdfIngestor
+        @param path: Pdf path
+
+        @return List of QuoteModel
         """
         fOutput = 'pdftotext.txt'
         _ = subprocess.run(f"pdftotext -layout {path} {fOutput}")
@@ -93,9 +97,11 @@ class PdfIngestor(IngestorInterface):
         with open(fOutput, 'r') as fText:
             for text in fText.readlines():
                 arr_text = str.split(text, ' - ')
-                if (len(arr_text) == 1): break
+                if (len(arr_text) == 1):
+                    break
                 quote_models.append(QuoteModel(arr_text[0], arr_text[1]))
         return quote_models
+
 
 class TextIngestor(IngestorInterface):
 
@@ -107,7 +113,7 @@ class TextIngestor(IngestorInterface):
             if str.upper(suffix) != '.TXT':
                 return False
             return True
-        except:
+        except Exception:
             return False
 
     @override
@@ -120,10 +126,11 @@ class TextIngestor(IngestorInterface):
                 quote_models.append(QuoteModel(arr_text[0], arr_text[1]))
         return quote_models
 
+
 class Ingestor:
 
     @classmethod
-    def create(cls, type:str) -> IngestorInterface:
+    def create(cls, type: str) -> IngestorInterface:
         if type == '.txt':
             return TextIngestor()
         elif type == '.pdf':

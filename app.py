@@ -84,6 +84,8 @@ def meme_post():
     except UnidentifiedImageError as ex:
         error = f"Url should be a image, {ex}"
         return render_template('error.html', error=error)
+    except Exception as ex:
+        return render_template('error.html', error=ex)
 
 
 if __name__ == "__main__":

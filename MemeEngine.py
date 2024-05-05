@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 import os
+import textwrap
 
 
 class MemeEngine:
@@ -12,6 +13,11 @@ class MemeEngine:
     def make_meme(self, img_path: str, text: str, author: str, width: int = 500) -> str:
         """Generate a meme and return meme path"""
         if os.path.exists(img_path):
+            # Use text wrapper
+            wrapper = textwrap.TextWrapper(width=25, max_lines=12) 
+            text_and_author = f"{text} - {author}"
+            string = wrapper.fill(text=text_and_author) 
+
             image = Image.open(img_path)
             imgWidth, imgHeight = image.size
             aspect_ratio = imgWidth / imgHeight
@@ -27,9 +33,7 @@ class MemeEngine:
 
             # Draw the text on the image
             textPos = (1, 1)
-            authorPos = (1, textPos[1] + fontSize)
-            draw.text(textPos, text, font=font, fill="white", stroke_width=2, stroke_fill='black')
-            draw.text(authorPos, author, font=font, fill="white", stroke_width=2, stroke_fill='black')
+            draw.text(textPos, string, font=font, fill="white", stroke_width=2, stroke_fill='black')
 
             # Create a safe system path
             path = Path(self.path)
